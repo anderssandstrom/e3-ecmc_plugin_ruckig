@@ -1,0 +1,46 @@
+##############################################################################
+## Example: Configuraftion for running ecmc ruckig plugin
+##############################################################################
+
+## Initiation:
+epicsEnvSet("IOC" ,"$(IOC="IOC_TEST")")
+epicsEnvSet("ECMCCFG_INIT" ,"")  #Only run startup once (auto at PSI, need call at ESS), variable set to "#" in startup.cmd
+epicsEnvSet("SCRIPTEXEC" ,"$(SCRIPTEXEC="iocshLoad")")
+
+require ecmccfg 7.0.0
+
+# run module startup.cmd (only needed at ESS  PSI auto call at require)
+$(ECMCCFG_INIT)$(SCRIPTEXEC) ${ecmccfg_DIR}startup.cmd, "IOC=$(IOC),ECMC_VER=develop, MASTER=-1"
+
+##############################################################################
+## Config hardware:
+# No EtherCAT hardware..
+
+##############################################################################
+## PLC 1
+#$(SCRIPTEXEC) $(ecmccfg_DIR)loadPLCFile.cmd, "PLC_ID=1, SAMPLE_RATE_MS=1,FILE=./plc/el1252.plc, PLC_MACROS=',SLAVE_ID=${ECMC_EC_SLAVE_NUM}'")
+
+########################################################################s######
+require ecmc_plugin_ruckig master
+
+## Load plugin: ruckig
+epicsEnvSet(ECMC_PLUGIN_FILNAME,"/home/pi/epics/base-7.0.4/require/3.3.0/siteMods/ecmc_plugin_fft/master/lib/${EPICS_HOST_ARCH=linux-x86_64}/libecmc_plugin_fft.so")
+epicsEnvSet(ECMC_PLUGIN_CONFIG,"SOURCE=plcs.plc0.static.sineval;DBG_PRINT=0;NFFT=1024;RATE=100;RM_DC=1;SCALE=1;MODE=CONT;ENABLE=1;")
+${SCRIPTEXEC} ${ecmccfg_DIR}loadPlugin.cmd, "PLUGIN_ID=0,FILE=${ECMC_PLUGIN_FILNAME},CONFIG='${ECMC_PLUGIN_CONFIG}', REPORT=1"
+# Note: INDEX is the index of FFT object in FFT plugin and not PLUGIN_ID. In this case the same
+dbLoadRecords(ecmcPluginFFT.template,"P=$(IOC):,INDEX=0, NELM=${FFT_NELM}, AMP_DESC='Sine amplitude',AMP_EGU='',RAW_DESC='Sine',AMP_EGU='', TITLE='FFT of sinus in 5Hz'")
+
+##############################################################################
+############# Configure diagnostics:
+
+ecmcConfigOrDie "Cfg.EcSetDiagnostics(1)"
+ecmcConfigOrDie "Cfg.EcEnablePrintouts(0)"
+ecmcConfigOrDie "Cfg.EcSetDomainFailedCyclesLimit(100)"
+
+##############################################################################
+############# Go active:
+$(SCRIPTEXEC) ($(ecmccfg_DIR)setAppMode.cmd)
+
+iocInit()
+
+dbl > pvs.log
