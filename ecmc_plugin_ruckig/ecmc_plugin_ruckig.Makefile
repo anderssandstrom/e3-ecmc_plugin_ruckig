@@ -42,14 +42,21 @@ APPDB:=$(APP)/Db
 APPSRC:=$(APP)/src
 
 USR_CFLAGS   += -shared -fPIC -Wall -Wextra
-USR_LDFLAGS  += -lstdc++
+USR_CPPFLAGS += -shared -fPIC -Wall -Wextra -std=c++17
+USR_LDFLAGS  += -lstdc++ 
 USR_INCLUDES += -I$(where_am_I)$(APPSRC)
+USR_INCLUDES += -I$(where_am_I)$(APPSRC)/ruckig/include
 
 TEMPLATES += $(wildcard $(APPDB)/*.db)
 TEMPLATES += $(wildcard $(APPDB)/*.template)
 SOURCES += $(APPSRC)/ecmcPluginRuckig.c
 SOURCES += $(APPSRC)/ecmcRuckigWrap.cpp
 SOURCES += $(APPSRC)/ecmcRuckig.cpp
+SOURCES += $(APPSRC)/ruckig/src/position-step1.cpp
+SOURCES += $(APPSRC)/ruckig/src/position-step2.cpp
+SOURCES += $(APPSRC)/ruckig/src/velocity-step1.cpp
+SOURCES += $(APPSRC)/ruckig/src/velocity-step2.cpp
+SOURCES += $(APPSRC)/ruckig/src/brake.cpp
 
 db:
 

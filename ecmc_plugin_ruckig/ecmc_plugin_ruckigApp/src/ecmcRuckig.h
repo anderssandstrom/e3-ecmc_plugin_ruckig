@@ -16,7 +16,6 @@
 #include "ecmcRuckigDefs.h"
 #include "inttypes.h"
 #include <string>
-//#include "kissfft/kissfft.hh"
 
 class ecmcRuckig  {
  public:
@@ -28,6 +27,7 @@ class ecmcRuckig  {
   ecmcRuckig(int   ruckigIndex,    // index of this object  
              char* configStr);
   ~ecmcRuckig();  
+  int test();
 
  private:
   void                  parseConfigStr(char *configStr);

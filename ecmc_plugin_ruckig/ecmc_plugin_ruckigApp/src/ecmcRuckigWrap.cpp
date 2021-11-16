@@ -31,8 +31,6 @@ int createRuckig(char* configStr) {
   // create new ecmcRuckig object
   ecmcRuckig* ruckig = NULL;
 
-  // create asynport name for new object ()
-
   try {
     ruckig = new ecmcRuckig(ruckigObjCounter, configStr);
   }
@@ -50,7 +48,7 @@ int createRuckig(char* configStr) {
   return 0;
 }
 
-void deleteAllFFTs() {
+void deleteAllRuckigs() {
   for(std::vector<ecmcRuckig*>::iterator pruckig = ruckigs.begin(); pruckig != ruckigs.end(); ++pruckig) {
     if(*pruckig) {
       delete (*pruckig);
