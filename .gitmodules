@@ -1,0 +1,3 @@
+[submodule "ecmc_plugin_ruckig/ecmc_plugin_ruckigApp/src/ruckig"]
+	path = ecmc_plugin_ruckig/ecmc_plugin_ruckigApp/src/ruckig
+	url = git@github.com:pantor/ruckig.git
