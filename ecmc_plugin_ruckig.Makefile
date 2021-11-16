@@ -37,7 +37,7 @@ ifneq ($(strip $(ECMC_DEP_VERSION)),)
 ecmc_VERSION=$(ECMC_DEP_VERSION)
 endif
 
-APP:=ecmc_plugin_fftApp
+APP:=ecmc_plugin_ruckigApp
 APPDB:=$(APP)/Db
 APPSRC:=$(APP)/src
 

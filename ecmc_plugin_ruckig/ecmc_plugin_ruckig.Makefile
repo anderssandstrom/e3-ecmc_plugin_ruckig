@@ -37,7 +37,7 @@ ifneq ($(strip $(ECMC_DEP_VERSION)),)
 ecmc_VERSION=$(ECMC_DEP_VERSION)
 endif
 
-APP:=ecmc_plugin_fftApp
+APP:=ecmc_plugin_ruckigApp
 APPDB:=$(APP)/Db
 APPSRC:=$(APP)/src
 
@@ -47,9 +47,9 @@ USR_INCLUDES += -I$(where_am_I)$(APPSRC)
 
 TEMPLATES += $(wildcard $(APPDB)/*.db)
 TEMPLATES += $(wildcard $(APPDB)/*.template)
-SOURCES += $(APPSRC)/ecmcPluginFFT.c
-SOURCES += $(APPSRC)/ecmcFFTWrap.cpp
-SOURCES += $(APPSRC)/ecmcFFT.cpp
+SOURCES += $(APPSRC)/ecmcPluginRuckig.c
+SOURCES += $(APPSRC)/ecmcRuckigWrap.cpp
+SOURCES += $(APPSRC)/ecmcRuckig.cpp
 
 db:
 

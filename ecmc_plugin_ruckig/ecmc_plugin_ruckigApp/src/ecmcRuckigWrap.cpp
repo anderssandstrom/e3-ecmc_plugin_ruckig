@@ -3,7 +3,7 @@
 * ecmc is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 *
-*  ecmcFFTWrap.cpp
+*  ecmcRuckigWrap.cpp
 *
 *  Created on: Mar 22, 2020
 *      Author: anderssandstrom
@@ -17,117 +17,43 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
-#include "ecmcFFTWrap.h"
-#include "ecmcFFT.h"
-#include "ecmcFFTDefs.h"
+#include "ecmcRuckigWrap.h"
+#include "ecmcRuckig.h"
+#include "ecmcRuckigDefs.h"
 
-#define ECMC_PLUGIN_MAX_PORTNAME_CHARS 64
-#define ECMC_PLUGIN_PORTNAME_PREFIX "PLUGIN.FFT"
 
-static std::vector<ecmcFFT*>  ffts;
-static int                    fftObjCounter = 0;
-static char                   portNameBuffer[ECMC_PLUGIN_MAX_PORTNAME_CHARS];
 
-int createFFT(char* configStr) {
+static std::vector<ecmcRuckig*>  ruckigs;
+static int                    ruckigObjCounter = 0;
 
-  // create new ecmcFFT object
-  ecmcFFT* fft = NULL;
+int createRuckig(char* configStr) {
+
+  // create new ecmcRuckig object
+  ecmcRuckig* ruckig = NULL;
 
   // create asynport name for new object ()
-  memset(portNameBuffer, 0, ECMC_PLUGIN_MAX_PORTNAME_CHARS);
-  snprintf (portNameBuffer, ECMC_PLUGIN_MAX_PORTNAME_CHARS,
-            ECMC_PLUGIN_PORTNAME_PREFIX "%d", fftObjCounter);
+
   try {
-    fft = new ecmcFFT(fftObjCounter, configStr, portNameBuffer);
+    ruckig = new ecmcRuckig(ruckigObjCounter, configStr);
   }
   catch(std::exception& e) {
-    if(fft) {
-      delete fft;
+    if(ruckig) {
+      delete ruckig;
     }
     printf("Exception: %s. Plugin will unload.\n",e.what());
-    return ECMC_PLUGIN_FFT_ERROR_CODE;
+    return ECMC_PLUGIN_RUCKIG_ERROR_CODE;
   }
   
-  ffts.push_back(fft);
-  fftObjCounter++;
+  ruckigs.push_back(ruckig);
+  ruckigObjCounter++;
 
   return 0;
 }
 
 void deleteAllFFTs() {
-  for(std::vector<ecmcFFT*>::iterator pfft = ffts.begin(); pfft != ffts.end(); ++pfft) {
-    if(*pfft) {
-      delete (*pfft);
+  for(std::vector<ecmcRuckig*>::iterator pruckig = ruckigs.begin(); pruckig != ruckigs.end(); ++pruckig) {
+    if(*pruckig) {
+      delete (*pruckig);
     }
   }
-}
-
-int  linkDataToFFTs() {
-  for(std::vector<ecmcFFT*>::iterator pfft = ffts.begin(); pfft != ffts.end(); ++pfft) {
-    if(*pfft) {
-      try {
-        (*pfft)->connectToDataSource();
-      }
-      catch(std::exception& e) {
-        printf("Exception: %s. Plugin will unload.\n",e.what());
-        return ECMC_PLUGIN_FFT_ERROR_CODE;
-      }
-    }
-  }
-  return 0;
-}
-
-int enableFFT(int fftIndex, int enable) {
-  try {
-    ffts.at(fftIndex)->setEnable(enable);
-  }
-  catch(std::exception& e) {
-    printf("Exception: %s. FFT index out of range.\n",e.what());
-    return ECMC_PLUGIN_FFT_ERROR_CODE;
-  }
-  return 0;
-}
-
-int clearFFT(int fftIndex) {
-  try {
-    ffts.at(fftIndex)->clearBuffers();
-  }
-  catch(std::exception& e) {
-    printf("Exception: %s. FFT index out of range.\n",e.what());
-    return ECMC_PLUGIN_FFT_ERROR_CODE;
-  }  
-  return 0;
-}
-
-int triggFFT(int fftIndex) {
-  try {
-    ffts.at(fftIndex)->triggFFT();
-  }
-  catch(std::exception& e) {
-    printf("Exception: %s. FFT index out of range.\n",e.what());
-    return ECMC_PLUGIN_FFT_ERROR_CODE;
-  }  
-  return 0;
-}
-
-int modeFFT(int fftIndex, FFT_MODE mode) {
-  try {
-    ffts.at(fftIndex)->setModeFFT(mode);
-  }
-  catch(std::exception& e) {
-    printf("Exception: %s. FFT index out of range.\n",e.what());
-    return ECMC_PLUGIN_FFT_ERROR_CODE;
-  }  
-  return 0;
-}
-
-FFT_STATUS  statFFT(int fftIndex) {
-  try {
-    return ffts.at(fftIndex)->getStatusFFT();
-  }
-  catch(std::exception& e) {
-    printf("Exception: %s. FFT index out of range.\n",e.what());
-    return NO_STAT;
-  }  
-  return NO_STAT;
 }
