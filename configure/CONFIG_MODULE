@@ -1,0 +1,29 @@
+#
+EPICS_MODULE_NAME:=ecmc_plugin_ruckig
+
+EPICS_MODULE_TAG:=master
+#
+E3_MODULE_VERSION:=master
+
+# DEPENDENT MODULE VERSION
+# For Example, 
+
+ECMC_DEP_VERSION:=develop
+ASYN_DEP_VERSION:=4.37.0
+
+#
+# 
+#E3_KMOD_SRC_PATH:=$(E3_MODULE_SRC_PATH)
+#
+# In most case, we don't need to touch the following variables.
+#
+
+E3_MODULE_NAME:=$(EPICS_MODULE_NAME)
+E3_MODULE_SRC_PATH:=ecmc_plugin_ruckig
+E3_MODULE_MAKEFILE:=$(EPICS_MODULE_NAME).Makefile
+
+
+-include $(TOP)/configure/CONFIG_OPTIONS
+# The definitions shown below can also be placed in an untracked CONFIG_MODULE.local
+-include $(TOP)/configure/CONFIG_MODULE.local
+
