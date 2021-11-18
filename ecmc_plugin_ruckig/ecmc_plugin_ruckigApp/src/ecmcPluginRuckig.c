@@ -96,7 +96,9 @@ struct ecmcPluginData pluginDataDef = {
   // Description
   .desc = "ruckig plugin for use with ecmc.",
   // Option description
-  .optionDesc = "\n    "ECMC_PLUGIN_DBG_PRINT_OPTION_CMD"<1/0>    : Enables/disables printouts from plugin, default = disabled.\n", 
+  .optionDesc = "\n    "ECMC_PLUGIN_DBG_PRINT_OPTION_CMD"<1/0>    : Enables/disables printouts from plugin, default = disabled.\n"
+                "    "ECMC_PLUGIN_DOFS_OPTION_CMD"<dofs>        : Sets the degrees of freedom, default = 1.\n"   
+                "    "ECMC_PLUGIN_RATE_OPTION_CMD"<rate>        : Sets the ruckig sample rate in Hz, default = same as ecmc rt cycle.\n",
   // Plugin version
   .version = ECMC_EXAMPLE_PLUGIN_VERSION,
   // Optional construct func, called once at load. NULL if not definded.

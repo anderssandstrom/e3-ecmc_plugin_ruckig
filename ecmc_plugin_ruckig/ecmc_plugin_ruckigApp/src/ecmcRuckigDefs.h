@@ -3,7 +3,7 @@
 * ecmc is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 *
-*  ecmcFFTDefs.h
+*  ecmcRuckigDefs.h
 *
 *  Created on: Mar 22, 2020
 *      Author: anderssandstrom
@@ -16,6 +16,8 @@
 
 // Options
 #define ECMC_PLUGIN_DBG_PRINT_OPTION_CMD "DBG_PRINT="
+#define ECMC_PLUGIN_DOFS_OPTION_CMD "DOFS="
+#define ECMC_PLUGIN_RATE_OPTION_CMD "RATE="
 
 #define ECMC_PLUGIN_RUCKIG_ERROR_CODE 1000
 

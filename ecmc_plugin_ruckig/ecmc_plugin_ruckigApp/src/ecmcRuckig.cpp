@@ -19,9 +19,8 @@
 #include "ecmcPluginClient.h"
 #include <string.h>
 #include <iostream>
-#include <ruckig/ruckig.hpp>
 
-using namespace ruckig;
+
 
 /** ecmc Ruckig class
  * This object can throw: 
@@ -31,19 +30,34 @@ using namespace ruckig;
 */
 ecmcRuckig::ecmcRuckig(int ruckigIndex,       // index of this object (if several is created)
                        char* configStr) {
+
+  otg_              = NULL;
+  input_            = NULL;
+  output_           = NULL;
   cfgDataSourceStr_ = configStr;
-  ecmcSampleRateHz_    = getEcmcSampleRate();
+  ecmcSampleRateHz_ = 0;
   cfgDbgMode_       = 0;
-
-
+  cfgDOFs_          = 1 ;
+  cfgRateHz_        = getEcmcSampleRate();
   parseConfigStr(configStr); // Assigns all configs
+
+  ecmcSampleRateHz_ = cfgRateHz_;
 
   // Check valid sample rate
   if(ecmcSampleRateHz_ <= 0) {
     throw
      std::out_of_range("ecmc ruckig: Invalid sample rate"); 
   }
+  
+  // create ruckig objects
+  cfgDOFs_ = 3;
+  otg_  = new Ruckig<DynamicDOFs>(cfgDOFs_,1/ecmcSampleRateHz_);
+  input_ = new InputParameter<DynamicDOFs>(cfgDOFs_);
+  output_ = new OutputParameter<DynamicDOFs>(cfgDOFs_);
+  std::cout << "#################################################HEPP 1" << std::endl;
   test(); 
+  std::cout << "#################################################HEPP 2" << std::endl;
+  test2(); 
 }
 
 ecmcRuckig::~ecmcRuckig() {
@@ -66,22 +80,22 @@ void ecmcRuckig::parseConfigStr(char *configStr) {
       }
       
       // ECMC_PLUGIN_DBG_PRINT_OPTION_CMD (1/0)
-      if (!strncmp(pThisOption, ECMC_PLUGIN_DBG_PRINT_OPTION_CMD, strlen(ECMC_PLUGIN_DBG_PRINT_OPTION_CMD))) {
+      else if (!strncmp(pThisOption, ECMC_PLUGIN_DBG_PRINT_OPTION_CMD, strlen(ECMC_PLUGIN_DBG_PRINT_OPTION_CMD))) {
         pThisOption += strlen(ECMC_PLUGIN_DBG_PRINT_OPTION_CMD);
         cfgDbgMode_ = atoi(pThisOption);
+      }
+
+      // ECMC_PLUGIN_DOFS_OPTION_CMD
+      else if (!strncmp(pThisOption, ECMC_PLUGIN_DOFS_OPTION_CMD, strlen(ECMC_PLUGIN_DOFS_OPTION_CMD))) {
+        pThisOption += strlen(ECMC_PLUGIN_DOFS_OPTION_CMD);
+        cfgDOFs_ = atoi(pThisOption);
       } 
-      
-//      // ECMC_PLUGIN_SOURCE_OPTION_CMD (Source string)
-//      else if (!strncmp(pThisOption, ECMC_PLUGIN_SOURCE_OPTION_CMD, strlen(ECMC_PLUGIN_SOURCE_OPTION_CMD))) {
-//        pThisOption += strlen(ECMC_PLUGIN_SOURCE_OPTION_CMD);
-//        cfgDataSourceStr_=strdup(pThisOption);
-//      }
-//
-//      // ECMC_PLUGIN_RATE_OPTION_CMD rate in HZ
-//      else if (!strncmp(pThisOption, ECMC_PLUGIN_RATE_OPTION_CMD, strlen(ECMC_PLUGIN_RATE_OPTION_CMD))) {
-//        pThisOption += strlen(ECMC_PLUGIN_RATE_OPTION_CMD);
-//        cfgFFTSampleRateHz_ = atof(pThisOption);
-//      }
+
+      // ECMC_PLUGIN_RATE_OPTION_CMD rate in HZ
+      else if (!strncmp(pThisOption, ECMC_PLUGIN_RATE_OPTION_CMD, strlen(ECMC_PLUGIN_RATE_OPTION_CMD))) {
+        pThisOption += strlen(ECMC_PLUGIN_RATE_OPTION_CMD);
+        cfgRateHz_ = atof(pThisOption);
+      }
 
       pThisOption = pNextOption;
     }    
@@ -123,3 +137,25 @@ int ecmcRuckig::test() {
  return 0;
 }
 
+int ecmcRuckig::test2() {
+
+  input_->current_position = {0.0, 0.0, 0.5};
+  input_->current_velocity = {0.0, -2.2, -0.5};
+  input_->current_acceleration = {0.0, 2.5, -0.5};
+  input_->target_position = {-5.0, -2.0, -3.5};
+  input_->target_velocity = {0.0, -0.5, -2.0};
+  input_->target_acceleration = {0.0, 0.0, 0.5};
+  input_->max_velocity = {3.0, 1.0, 3.0};
+  input_->max_acceleration = {3.0, 2.0, 1.0};
+  input_->max_jerk = {4.0, 3.0, 2.0};
+  // Generate the trajectory within the control loop
+  std::cout << "t | p1 | p2 | p3" << std::endl;
+  while (otg_->update(*input_, *output_) == Result::Working) {
+      auto& p = output_->new_position;
+      std::cout << output_->time << " " << p[0] << " " << p[1] << " " << p[2] << " " << std::endl;
+     output_->pass_to_input(*input_);
+  }
+ std::cout << "Trajectory duration: " << output_->trajectory.get_duration() << " [s]." << std::endl;
+ 
+ return 0;
+}

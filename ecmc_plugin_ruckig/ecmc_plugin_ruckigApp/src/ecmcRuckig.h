@@ -16,6 +16,8 @@
 #include "ecmcRuckigDefs.h"
 #include "inttypes.h"
 #include <string>
+#include <ruckig/ruckig.hpp>
+using namespace ruckig;
 
 class ecmcRuckig  {
  public:
@@ -28,13 +30,21 @@ class ecmcRuckig  {
              char* configStr);
   ~ecmcRuckig();  
   int test();
+  int test2();
 
  private:
   void                  parseConfigStr(char *configStr);
   static std::string    to_string(int value);
   char*                 cfgDataSourceStr_;   // Config: data source string
   int                   cfgDbgMode_;         // Config: allow dbg printouts
-  int                   ecmcSampleRateHz_;   // ecmc sample rete in Hz
+  int                   cfgDOFs_;            // Config: degrees of freedom, defaults to 1
+  double                cfgRateHz_;          // Config: update rate [Hz], defaults to ecmc rate 
+  double                ecmcSampleRateHz_;   // ecmc sample rete in Hz
+  
+  Ruckig<DynamicDOFs>          *otg_;
+  InputParameter<DynamicDOFs>  *input_;
+  OutputParameter<DynamicDOFs> *output_;
+
 };
 
 #endif  /* ECMC_RUCKIG_H_ */
